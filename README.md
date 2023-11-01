@@ -1,14 +1,14 @@
 # Python-M2-QEA
 Final project for the python crash course M2 QEA
 
-**Python crash course project on bank churn rate
+**Python crash course project on bank churn rate**
 See https://smellydatascience.com/teaching/python-for-data-science/evaluation for the data (dataset1)
 
-**Context
+**Context**
 A european bank wants to identify the main factors contributing to customer churn (i.e., customers leaving the bank and closing their accounts). 
 By doing so, the bank can target such customers with incentives, or use this knowledge to propose new products that are better suited to their needs.
 
-**Questions:
+**Questions:**
 - What is the churn rate among the bank's customers?
 - How are the different variables (gender, age, geography, etc.) distributed in the dataset?
 - How do the different variables interact with each other?
