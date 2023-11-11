@@ -125,10 +125,10 @@ print(f'P-value: {p_value}') # p<0.01
 #For the age variable 
 
 #Does the churn rate vary accross age ?
-sns.lineplot(x='Age', y='Exited', data=churn_rate, marker='o', color='blue')
+sns.lineplot(x='Age', y='Exited', data=churn_data, marker='o', color='blue')
 
 #Does the activity of the client vary across age ? 
-sns.lineplot(x='Age', y='IsActiveMember', data=churn_rate, marker='o', color='blue')
+sns.lineplot(x='Age', y='IsActiveMember', data=churn_data, marker='o', color='blue')
 
 ###What is the distribution of variables across countries ?
 
