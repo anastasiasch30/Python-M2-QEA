@@ -96,6 +96,54 @@ plt.hist(churn_data.EstimatedSalary) #A: very ugly
 churn_rate = sum(churn_data.Exited)/len(churn_data)
 #20%, this seems ridiculously high tbh
 
+##### What is the relationships between variables ? 
+#Replacing gender by numerical values 
+churn_data['Gender'] = churn_data['Gender'].replace({'Female': 1, 'Male': 0})
+
+#simple covariance matrix
+correlation_matrix = churn_data.corr()
+print(correlation_matrix) 
+#In general what we can remark is that explicative variables are not that much correlated with one another, 
+#which is good thing since it implies more explicative power for the churn rate.
+
+#The only correlation that seems relevant between gender and another variable seems to be churn
+sns.countplot(data=churn_rate, x='Exited', hue='Gender')
+plt.show() 
+
+#Is the difference in churn rates between groups significant ?
+from scipy.stats import ttest_ind
+
+#Separate the churn variable according to gender
+female_mean = df[df['Gender'] == 1]['Exited']
+male_mean = df[df['Gender'] == 0]['Exited']
+
+#Test if there is a statistically significant difference in means
+t_statistic, p_value = ttest_ind(female_data, male_data)
+print(f'T-statistic: {t_statistic}')
+print(f'P-value: {p_value}') # p<0.01
+
+#For the age variable 
+
+#Does the churn rate vary accross age ?
+sns.lineplot(x='Age', y='Exited', data=churn_data, marker='o', color='blue')
+
+#Does the activity of the client vary across age ? 
+sns.lineplot(x='Age', y='IsActiveMember', data=churn_data, marker='o', color='blue')
+
+###What is the distribution of variables across countries ?
+
+#For the countries
+grouped_data = churn_data.groupby('Geography').mean().reset_index()
+
+#For balance
+sns.scatterplot(x='Geography', y='Balance', data=grouped_data, marker='o', color='blue')
+#We could either just visualize the differences in those variables according to geographic situations, or run tests on the means in grouped_data, or do both haha
+
+
+
+
+
+
 
 
 #Ideas for the rest: 
@@ -110,6 +158,8 @@ churn_rate = sum(churn_data.Exited)/len(churn_data)
 #Build a simple machine learning classification model that predicts churn based on customer's features
     #Def doable,cf Mach learning
     # Hardest q° will be which model to use... (RF classification imo, but need to consider question and justify choice)
+
+#Suggestion for ml algorithm, maybe use the end of the last exercise done in class if we don't want to bother, I think it did pretty good on accuracy.
 
 #Open questions:
     #What important points made in class need to be included?
