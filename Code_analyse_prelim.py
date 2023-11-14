@@ -17,7 +17,6 @@ from matplotlib import pyplot as plt
 #knowledge to propose new products that are better suited to their needs.
 
 
-
 ##### Import the data 
 
 #A: May be a strange way of doing it, but it works very well...!
@@ -138,7 +137,6 @@ plt.gca().legend().remove()
 sns.boxplot(y='EstimatedSalary',x = 'Geography', hue = 'Geography',data = churn_data).set(xlabel='')
 plt.gca().legend().remove()
 
-
 ### Influence of other variables on churn 
 
 sns.countplot(data=churn_data, x='Exited', hue='Gender')
@@ -147,7 +145,7 @@ sns.countplot(data=churn_data, x='Exited', hue='Geography')
 #Higher churn rate for female compared to male
 #Higher churn rate in Germany and spain compared to france, maybe a link with the number of clients
 
-#Are they significative difference ? 
+#Are they significative ? 
 from scipy.stats import ttest_ind
 
 #Separate the churn variable according to gender and geography
@@ -179,10 +177,11 @@ print(f'T-statistic: {t_statistic}')
 print(f'P-value: {p_value}')
 #p<0.001
 
+### Tu peux rajouter des régressions linéaires ici vu que tu kiffes ca hahah
 
 ### Machine learning Model ###
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 
 #Without the country variable : 
@@ -190,18 +189,86 @@ Y = df["Exited"]
 X = df.drop("Exited", axis = 1)
 X = X.drop("Geography", axis = 1)
 
+#Spliting the sample
 X_train, X_test, Y_train, Y_test = train_test_split(X,Y, test_size = 0.3, random_state = 42)
 
-mse_values= []
+#looping for best values of min_samples_split 
+
+accuracy_values= []
 
 for i in range(2, 50): 
     model = RandomForestClassifier(min_samples_split=i, random_state = 42)
     model.fit(X_train, Y_train)
     prediction_Y = model.predict(X_test)
-    mse = mean_squared_error(Y_test, prediction_Y)
-    mse_values.append(mse)
+    accuracy = accuracy_score(Y_test, prediction_Y)
+    accuracy_values.append(accuracy)
+    
+#With the country variable, using one-hot encoding 
+#Creating a new dataset to not conflict with the previous one
 
-#Best value for min_samples_split is 42, Accuracy = 0.86
+df = pd.read_csv('churn_bank.txt', sep = ",")
+df['Gender'] = df['Gender'].replace({'Female': 1, 'Male': 0})
+df = df.drop(["CustomerId", "Surname"], axis = 1)
+
+#Adding dummies for the presence or not of one country in the row 
+
+df = pd.get_dummies(df, columns=['Geography'], prefix='geo', drop_first=False)
+
+Y = df["Exited"]
+X = df.drop("Exited", axis = 1)
+
+#splitting the sample
+
+X_train, X_test, Y_train, Y_test = train_test_split(X,Y, test_size = 0.3, random_state = 42)
+
+#looping for best min_samples_split
+accuracy_values = []
+
+for i in range(2, 50): 
+    model = RandomForestClassifier(min_samples_split=i, random_state = 42)
+    model.fit(X_train, Y_train)
+    prediction_Y = model.predict(X_test)
+    accuracy = accuracy_score(Y_test, prediction_Y)
+    accuracy_values.append(accuracy)
+
+#accury over different values of min_samples_split 
+
+min_samples_split=list(range(2,50))
+plt.plot(min_samples_split, accuracy_values, marker='o')
+plt.title('Change in mse with different min samples split values')
+plt.xlabel('min_sample_split')
+plt.ylabel('accuracy')
+plt.grid(True)
+
+#looping for best n_estimator
+accuracy_values = []
+
+for i in range(80, 200): 
+    model = RandomForestClassifier(n_estimators = i, min_samples_split=27, random_state = 42)
+    model.fit(X_train, Y_train)
+    prediction_Y = model.predict(X_test)
+    accuracy = accuracy_score(Y_test, prediction_Y)
+    accuracy_values.append(accuracy)
+
+#accuracy across n_estimator with best min_samples_split
+
+n_regressors=list(range(80,200))
+plt.plot(n_regressors, accuracy_values, marker='o')
+plt.title('Change in mse with different min samples split values')
+plt.xlabel('n_regressors')
+plt.ylabel('accuracy')
+plt.grid(True)
+
+
+#1) Best value for min_samples_split is 42, Accuracy = 0.86
+#2) Best value for min_samples_split is 27, best value for n_estimators is 120, Accuracy = 0.875
+#Ici je suis très con parce que je me suis cassé la tete à faire 4 loops alors que ca se résume à deux grid search, il faut que je modifie ca
+
+#With the country variable as a numerical label 
+
+
+
+
 
 #Ideas for the rest: 
 # Q° : Look at interactions between groups: What are the age, salary, balance, number of products, etc. distributions for each gender group?
