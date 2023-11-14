@@ -22,7 +22,10 @@ from matplotlib import pyplot as plt
 
 #A: May be a strange way of doing it, but it works very well...!
 churn_data =  pd.read_csv('churn_bank.txt', delimiter=',')
+churn_data = churn_data.drop(["CustomerId", "Surname"], axis = 1)
 
+churn_data.isnull().sum()
+#No missing values
 
 ##### Getting to know the dataset
 
@@ -52,7 +55,7 @@ churn_data.Geography
 
 #A: Should we make a dictionnary to show that we know what that is?
 countries = np.unique(churn_data.Geography)
-freq_country = [ sum(churn_data.Geography == i) for i in countries]
+freq_country = [sum(churn_data.Geography == i) for i in countries]
 
 plt.bar(countries,freq_country)
 
@@ -106,45 +109,99 @@ print(correlation_matrix)
 #In general what we can remark is that explicative variables are not that much correlated with one another, 
 #which is good thing since it implies more explicative power for the churn rate.
 
-#The only correlation that seems relevant between gender and another variable seems to be churn
-sns.countplot(data=churn_rate, x='Exited', hue='Gender')
-plt.show() 
+### For the age variable 
 
-#Is the difference in churn rates between groups significant ?
-from scipy.stats import ttest_ind
+#Activity 
+sns.lineplot(x='Age', y='IsActiveMember', data=churn_data, marker='o')
 
-#Separate the churn variable according to gender
-female_mean = df[df['Gender'] == 1]['Exited']
-male_mean = df[df['Gender'] == 0]['Exited']
-
-#Test if there is a statistically significant difference in means
-t_statistic, p_value = ttest_ind(female_data, male_data)
-print(f'T-statistic: {t_statistic}')
-print(f'P-value: {p_value}') # p<0.01
-
-#For the age variable 
-
-#Does the churn rate vary accross age ?
-sns.lineplot(x='Age', y='Exited', data=churn_data, marker='o', color='blue')
-
-#Does the activity of the client vary across age ? 
-sns.lineplot(x='Age', y='IsActiveMember', data=churn_data, marker='o', color='blue')
-
+##For all other variables, the mean stays constant, for Balance and Estimated Salary it is 
 ###What is the distribution of variables across countries ?
+#Clients count
+country_count = churn_data.groupby('Geography').size().reset_index(name='Count')
+custom_colors = ['blue', 'green', 'orange']
 
-#For the countries
+plt.bar(grouped_data['Geography'], grouped_data['Count'], color = custom_colors)
+plt.ylabel('Number of clients')
+
+#Distributions
 grouped_data = churn_data.groupby('Geography').mean().reset_index()
 
-#For balance
-sns.scatterplot(x='Geography', y='Balance', data=grouped_data, marker='o', color='blue')
-#We could either just visualize the differences in those variables according to geographic situations, or run tests on the means in grouped_data, or do both haha
+sns.boxplot(y='CreditScore', x='Geography', hue='Geography', data=churn_data).set(xlabel='')
+plt.gca().legend().remove()
+
+sns.boxplot(y='Tenure',x = 'Geography', hue = 'Geography', data = churn_data).set(xlabel='')
+plt.gca().legend().remove()
+
+sns.boxplot(y='Balance',x = 'Geography', hue = 'Geography',data = churn_data).set(xlabel='')
+plt.gca().legend().remove()
+
+sns.boxplot(y='EstimatedSalary',x = 'Geography', hue = 'Geography',data = churn_data).set(xlabel='')
+plt.gca().legend().remove()
 
 
+### Influence of other variables on churn 
+
+sns.countplot(data=churn_data, x='Exited', hue='Gender')
+sns.countplot(data=churn_data, x='Exited', hue='Geography')
+
+#Higher churn rate for female compared to male
+#Higher churn rate in Germany and spain compared to france, maybe a link with the number of clients
+
+#Are they significative difference ? 
+from scipy.stats import ttest_ind
+
+#Separate the churn variable according to gender and geography
+female_data = df[df['Gender'] == 1]['Exited']
+male_data = df[df['Gender'] == 0]['Exited']
+
+france_data= df [df['Geography'] == 'France']['Exited']
+spain_data= df [df['Geography'] == 'Spain']['Exited']
+germany_data= df [df['Geography'] == 'Germany']['Exited']
+
+#For gender
+t_statistic, p_value = ttest_ind(female_data, male_data)
+print(f'T-statistic: {t_statistic}')
+print(f'P-value: {p_value}')
+
+#For geography 
+t_statistic, p_value = ttest_ind(france_data, spain_data)
+print(f'T-statistic: {t_statistic}')
+print(f'P-value: {p_value}')
+#Not significant
+
+t_statistic, p_value = ttest_ind(france_data, germany_data)
+print(f'T-statistic: {t_statistic}')
+print(f'P-value: {p_value}')
+#p<0.001
+
+t_statistic, p_value = ttest_ind(spain_data, germany_data)
+print(f'T-statistic: {t_statistic}')
+print(f'P-value: {p_value}')
+#p<0.001
 
 
+### Machine learning Model ###
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split
 
+#Without the country variable : 
+Y = df["Exited"]
+X = df.drop("Exited", axis = 1)
+X = X.drop("Geography", axis = 1)
 
+X_train, X_test, Y_train, Y_test = train_test_split(X,Y, test_size = 0.3, random_state = 42)
 
+mse_values= []
+
+for i in range(2, 50): 
+    model = RandomForestClassifier(min_samples_split=i, random_state = 42)
+    model.fit(X_train, Y_train)
+    prediction_Y = model.predict(X_test)
+    mse = mean_squared_error(Y_test, prediction_Y)
+    mse_values.append(mse)
+
+#Best value for min_samples_split is 42, Accuracy = 0.86
 
 #Ideas for the rest: 
 # Q° : Look at interactions between groups: What are the age, salary, balance, number of products, etc. distributions for each gender group?
