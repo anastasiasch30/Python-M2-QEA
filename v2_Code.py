@@ -5,6 +5,7 @@ Created on Wed Nov  1 21:06:55 2023
 @author: anast
 """
 #NB need prints somewhere!!
+#Save all relevant graphs
 
 import pandas as pd #TBC if needed or just use the next one
 import numpy as np
@@ -28,59 +29,76 @@ churn_data =  pd.read_csv('churn_bank.txt', delimiter=',')
 churn_data.isnull().sum()
 #No missing values
 
+
+
+
 ##### Getting to know the dataset
 
-#A: to do --> Use seaborn to have relevant and pretty graphs for each variable
-pd.DataFrame.head(churn_data)
+print(churn_data.head())
+
 col_names = churn_data.columns.values.tolist()
+print("There are ",len(churn_data), " customers in the data set and there are ", len(col_names), "features.")
 #churn_data.columns() This is an index object, not a list, so can't just print it
 
-len(churn_data) #10 000 customers
-len(col_names) #13 features
 
-#Review of each of the variables: 
-#A: /!\ Probably a more efficient way of doing this (esp the codes for the frequency!!)
-#A: Also see which ones are really needed...
 
 #Surname
-np.unique(churn_data.Surname)
-len(np.unique(churn_data.Surname)) #2932 surprisingly low!
+#np.unique(churn_data.Surname)
+#len(np.unique(churn_data.Surname)) #2932 surprisingly low!
 #Look into the hypothesiss of the same families?
+print("There are ", len(np.unique(churn_data.Surname)), "unique last names in the dataset." )
 
 #Credit score
 plt.hist(churn_data.CreditScore)
-np.mean(churn_data.CreditScore)
-np.median(churn_data.CreditScore)
+print("The average credit score is ", np.mean(churn_data.CreditScore))
+#np.median(churn_data.CreditScore)
+sns.kdeplot(churn_data.CreditScore)
+#Je préfère le seaborn je pense
+
 
 #Geography
-churn_data.Geography
 
 #A: Should we make a dictionnary to show that we know what that is?
 countries = np.unique(churn_data.Geography)
 freq_country = [sum(churn_data.Geography == i) for i in countries]
 
 plt.bar(countries,freq_country)
+#Print how many are in each country
 
-#A: Is there a way to show a map of Europe with this? ahahha
 
 #Gender
 gender = np.unique(churn_data.Gender)
 freq_gender = [sum(churn_data.Gender == i ) for i in gender]
 plt.pie(freq_gender, labels = gender)
 
+#Print proportion of male and female
+
+
 #Age
 plt.hist(churn_data.Age)
-np.mean(churn_data.Age)
-np.median(churn_data.Age)
+#np.mean(churn_data.Age)
+#np.median(churn_data.Age)
+print("The average age of a customer in the data set is ",np.mean(churn_data.Age), " years old")
 
 #Tenure
-plt.hist(churn_data.Tenure) #A: Not very illustrative...
-    
+#plt.hist(churn_data.Tenure) #A: Not very illustrative...
+sns.kdeplot(churn_data.Tenure)
+print("The average customer has been at this bank for ", np.mean(churn_data.Tenure) )
+#Important to note that there is no cutoff
+#Understand the wavelets?
+
 #Balance
 plt.hist(churn_data.Balance) #A: Large number with very low
+sns.kdeplot(churn_data.Balance)
+#Seems to have a bivariate distribution with a significantly high pique at 0 or very close, and then a normal distribution.
+
 
 #NumOfProducts
-plt.hist(churn_data.NumOfProducts) #A: Not illustrative
+freq_NumOfProducts = [sum(churn_data.NumOfProducts == i ) for i in range(1,5)]
+plt.bar(range(1,5), freq_NumOfProducts) #Make this 1, 2, or 3 or 4, not 0.4
+plt.pie(freq_NumOfProducts, labels = range(1,5))
+
+
 
 #HasCrCard
 label_HasCrCard = ['Has a credit card', 'Does not have a credit card']
@@ -93,12 +111,16 @@ freq_IsActiveMember= [sum(churn_data.IsActiveMember), 10000-sum(churn_data.IsAct
 plt.pie(freq_IsActiveMember, labels = label_IsActiveMember)
 
 #EstimatedSalary
-plt.hist(churn_data.EstimatedSalary) #A: very ugly, find smth better
+#plt.hist(churn_data.EstimatedSalary) #A: very ugly, find smth better
+sns.kdeplot(churn_data.EstimatedSalary) #Relatively homogenous
+print("The average estimated salary is ", np.mean(churn_data.EstimatedSalary)) #Put less decimal points
+
 
 ##### What is the churn rate for the bank customers?
 
 #the annual percentage rate at which customers leave
 churn_rate = sum(churn_data.Exited)/len(churn_data)
+print("The churn rate for all of the customers is ", round(churn_rate*100), "%")
 #20%, this seems ridiculously high tbh
 
 
@@ -106,15 +128,11 @@ churn_rate = sum(churn_data.Exited)/len(churn_data)
 
 
 
-
-
-
-
-
-
-#Now we drop it!
+#Now we drop it?
+#/!\ Why?
 churn_data = churn_data.drop(["CustomerId", "Surname"], axis = 1) 
-
+#Att: need to get rid of Surname for the probit, so I kept it here
+#Should probs give it another name
 
 ##### What is the relationships between variables ? 
 #Replacing gender by numerical values 
@@ -127,10 +145,23 @@ print(correlation_matrix)
 #which is good thing since it implies more explicative power for the churn rate.
 
 
+#Pretty covariance matrix, maybe see about the colors
+
+mask = np.triu(np.ones_like(correlation_matrix, dtype=bool))
+f, ax = plt.subplots(figsize=(11, 9))
+
+cmap = sns.diverging_palette(230, 20, as_cmap=True)
+
+sns.heatmap(correlation_matrix, mask=mask, cmap=cmap, vmax=.3, center=0, square=True, linewidths=.5, cbar_kws={"shrink": .5})
+
+
+
 ### For the age variable 
 
 #Activity 
 sns.lineplot(x='Age', y='IsActiveMember', data=churn_data, marker='o')
+#I like this
+
 
 ##For all other variables, the mean stays constant, for Balance and Estimated Salary it is 
 ###What is the distribution of variables across countries ?
@@ -162,23 +193,31 @@ plt.gca().legend().remove()
 sns.boxplot(y='EstimatedSalary',x = 'Geography', hue = 'Geography',data = churn_data).set(xlabel='')
 plt.gca().legend().remove()
 
+#Att question An: what are we trying to show with these boxplots? Is there a more illustrative way of showing smth?
+
+
+
+
 ### Influence of other variables on churn --> je ne comprends pas ce que tu veux faire?
-sns.countplot(data=churn_data, x='Exited', hue='Gender')
+sns.countplot(data=churn_data, x='Exited', hue='Gender') #Refaire ça avec les variables au DEBUT (avec female et male plutôt)
 sns.countplot(data=churn_data, x='Exited', hue='Geography')
 
 #Higher churn rate for female compared to male
 #Higher churn rate in Germany and spain compared to france, maybe a link with the number of clients
 
+#/!\ An: tu ne calcules pas le churn rate, juste le nb de exits?
+#Je réflechis à qqch de plus parlant?
+
 #Are they significative ? 
 from scipy.stats import ttest_ind
 
 #Separate the churn variable according to gender and geography
-female_data = df[df['Gender'] == 1]['Exited']
-male_data = df[df['Gender'] == 0]['Exited']
+female_data = churn_data[churn_data['Gender'] == 1]['Exited']
+male_data = churn_data[churn_data['Gender'] == 0]['Exited']
 
-france_data= df [df['Geography'] == 'France']['Exited']
-spain_data= df [df['Geography'] == 'Spain']['Exited']
-germany_data= df [df['Geography'] == 'Germany']['Exited']
+france_data= churn_data[churn_data['Geography'] == 'France']['Exited']
+spain_data= churn_data[churn_data['Geography'] == 'Spain']['Exited']
+germany_data= churn_data[churn_data['Geography'] == 'Germany']['Exited']
 
 #For gender
 t_statistic, p_value = ttest_ind(female_data, male_data)
@@ -202,6 +241,28 @@ print(f'P-value: {p_value}')
 #p<0.001
 
 ### Tu peux rajouter des régressions linéaires ici vu que tu kiffes ca hahah
+#An: Idée: faire une régression probit, pour regarder quels coefs ont quel signe et lesquels sont stat sig
+
+from statsmodels.discrete.discrete_model import Probit
+from statsmodels.tools.tools import add_constant
+
+churn_data['Geography'] = churn_data['Geography'].replace({'France': 1, 'Spain': 2, 'Germany':3})
+
+
+print(churn_data.head())
+churn_data.describe()
+
+Y = churn_data["Exited"]
+X = churn_data.drop(["Exited"], 1)
+X = add_constant(X) #Att why this?
+model = Probit(Y, X.astype(float))
+probit_model = model.fit()
+print(probit_model.summary())
+
+
+
+
+
 
 ### Machine learning Model ###
 from sklearn.ensemble import RandomForestClassifier
@@ -209,12 +270,15 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 
 #Without the country variable : 
-Y = df["Exited"]
-X = df.drop("Exited", axis = 1)
+#An: Why?
+
+Y = churn_data["Exited"]
+X = churn_data.drop("Exited", axis = 1)
 X = X.drop("Geography", axis = 1)
 
 #Spliting the sample
-X_train, X_test, Y_train, Y_test = train_test_split(X,Y, test_size = 0.3, random_state = 42)
+#J'ajoute stratify
+X_train, X_test, Y_train, Y_test = train_test_split(X,Y, test_size = 0.3, random_state = 42, stratify=Y)
 
 #looping for best values of min_samples_split 
 
@@ -226,7 +290,9 @@ for i in range(2, 50):
     prediction_Y = model.predict(X_test)
     accuracy = accuracy_score(Y_test, prediction_Y)
     accuracy_values.append(accuracy)
-    
+
+
+
 #With the country variable, using one-hot encoding 
 #Creating a new dataset to not conflict with the previous one
 
@@ -243,7 +309,7 @@ X = df.drop("Exited", axis = 1)
 
 #splitting the sample
 
-X_train, X_test, Y_train, Y_test = train_test_split(X,Y, test_size = 0.3, random_state = 42)
+X_train, X_test, Y_train, Y_test = train_test_split(X,Y, test_size = 0.3, random_state = 42, stratify = Y)
 
 #looping for best min_samples_split
 accuracy_values = []
