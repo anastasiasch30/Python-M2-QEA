@@ -105,7 +105,9 @@ print("The average customer has been at this bank for ", np.mean(churn_data.Tenu
 
 #Balance
 #plt.hist(churn_data.Balance) #A: Large number with very low
-sns.kdeplot(churn_data.Balance).set(title = "Distribution of bank balance of customers")
+#sns.kdeplot(churn_data.Balance).set(title = "Distribution of bank balance of customers")
+sns.kdeplot(churn_data.Balance)
+
 #Seems to have a normal distribution, with the exception of the low balance?
 print("The median bank balance is", np.median(churn_data.Balance))
 #Median because of the bimodal distribution
