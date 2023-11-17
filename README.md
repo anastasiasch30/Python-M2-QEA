@@ -1,6 +1,8 @@
 # Python-M2-QEA
 Final project for the python crash course M2 QEA
 
+By  Anastasia SCHENCKERY and Eddy DARRAGI
+
 **Python crash course project on bank churn rate**
 See https://smellydatascience.com/teaching/python-for-data-science/evaluation for the data (dataset1)
 
