@@ -47,8 +47,16 @@ print("There are ",len(churn_data), " customers in the data set and there are ",
 #Surname
 #np.unique(churn_data.Surname)
 #len(np.unique(churn_data.Surname)) #2932 surprisingly low!
-#Look into the hypothesiss of the same families?
 print("There are ", len(np.unique(churn_data.Surname)), "unique last names in the dataset." )
+
+#Surnames could be an indicator of families. However, there are too many different surnames, some of which are common and with over 32 customers with the same last name.
+churn_rate_by_surname = []
+freq_surname = []
+for i in np.unique(churn_data.Surname):
+    freq_surname.append(sum(churn_data.Surname == i))
+print("There are between ", min(freq_surname), " and ", max(freq_surname), " customers of each last name. This does not really allow us to deduce the existence of something like families from the surnames.")
+
+
 
 #Credit score
 #Je préfère le seaborn je pense
@@ -146,8 +154,6 @@ print("The churn rate for men is ", round(churn_rate_genderM*100), "%")
 for i in countries:
     churn_rate_country = sum(churn_data.Exited[churn_data.Geography == i])/len(churn_data[churn_data.Geography == i])
     print("The churn rate for "+i+" is ", round(churn_rate_country*100), "%")
-
-#Churn rate age:
 
 
 #Now we drop it?
