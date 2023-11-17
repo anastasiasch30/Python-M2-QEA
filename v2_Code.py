@@ -9,7 +9,7 @@ Created on Wed Nov  1 21:06:55 2023
 
 #Harmoniser les " et ', mettre que des " car ' est utilisé en grammaire anglaise
 
-import pandas as pd #TBC if needed or just use the next one
+import pandas as pd 
 import numpy as np
 from matplotlib import pyplot as plt
 import seaborn as sns
@@ -24,7 +24,7 @@ import seaborn as sns
 ##### Import the data 
 
 #A: May be a strange way of doing it, but it works very well...!
-churn_data =  pd.read_csv('churn_bank.txt', delimiter=',')
+churn_data =  pd.read_csv("churn_bank.txt", delimiter=",")
 #churn_data = churn_data.drop(["CustomerId", "Surname"], axis = 1) 
 #Attention: pourquoi est-ce qu'on drop CustomerId et Surname? Nécessaire pourtant
 
@@ -82,9 +82,8 @@ for i in range(len(countries)):
 #Gender
 gender = np.unique(churn_data.Gender)
 freq_gender = [sum(churn_data.Gender == i ) for i in gender]
-plt.pie(freq_gender, labels=gender, autopct='%1.1f%%', startangle =90, colors=colors, explode = explode, shadow=True)
 
-
+plt.pie(freq_gender, labels = gender, autopct="%1.1f%%", startangle =90, colors=colors, explode = explode, shadow=True)
 print(round(freq_gender[0]/100,1), "% of the customers are female. The rest are male.")
 
 
@@ -107,7 +106,10 @@ print("The average customer has been at this bank for ", np.mean(churn_data.Tenu
 
 #Balance
 #plt.hist(churn_data.Balance) #A: Large number with very low
-sns.kdeplot(df['Balance'], fill=True, color='skyblue', linewidth=2)
+
+#sns.kdeplot(churn_data.Balance).set(title = "Distribution of bank balance of customers")
+sns.kdeplot(churn_data.Balance, fill=True, color='skyblue', linewidth=2)
+
 #Seems to have a normal distribution, with the exception of the low balance?
 print("The median bank balance is", np.median(churn_data.Balance))
 #Median because of the bimodal distribution
@@ -120,16 +122,18 @@ print(round(freq_NumOfProducts[0]/100), "% of customers have one bank product. "
 
 
 #HasCrCard
-label_HasCrCard = ['Has a credit card', 'Does not have a credit card']
+label_HasCrCard = ["Has a credit card", "Does not have a credit card"]
 freq_HasCrCard= [sum(churn_data.HasCrCard), 10000-sum(churn_data.HasCrCard) ] #A: OPTIMIZE!!!!!
-plt.pie(freq_HasCrCard, labels = label_HasCrCard, autopct='%1.1f%%', startangle = 90,  colors=colors, explode = explode, shadow=True)
+
+plt.pie(freq_HasCrCard, labels = label_HasCrCard, autopct="%1.1f%%", startangle = 90,  colors=colors, explode = explode, shadow=True)
 print(round(freq_HasCrCard[0]/100), "% of customers have a credit card. ",round(freq_HasCrCard[1]/100), "% of customers do not have a credit card.")
 
 
 #IsActiveMember
-label_IsActiveMember = ['Active member', 'Inactive member']
+label_IsActiveMember = ["Active member", "Inactive member"]
 freq_IsActiveMember= [sum(churn_data.IsActiveMember), 10000-sum(churn_data.IsActiveMember) ] #A: OPTIMIZE!!!!!
-plt.pie(freq_IsActiveMember, labels = label_IsActiveMember, autopct='%1.1f%%', startangle = 90,  colors=colors, explode = explode, shadow=True)
+
+plt.pie(freq_IsActiveMember, labels = label_IsActiveMember, autopct="%1.1f%%", startangle = 90,  colors=colors, explode = explode, shadow=True)
 plt.title("Proportion of bank customers that are active")
 print(round(freq_IsActiveMember[0]/100), "% of customers are active. ",round(freq_IsActiveMember[1]/100), "% of customers are not active.")
 
@@ -137,7 +141,7 @@ print(round(freq_IsActiveMember[0]/100), "% of customers are active. ",round(fre
 #EstimatedSalary
 #plt.hist(churn_data.EstimatedSalary) #A: very ugly, find smth better
 sns.kdeplot(churn_data.EstimatedSalary).set(title = "Distribution of customers' estimated salary") #Relatively homogenous
-print("The average customer's estimated yearly salary is "+('{:,}'.format(round(np.mean(churn_data.EstimatedSalary)))) + " euros.") #Put less decimal points
+print("The average customer's estimated yearly salary is "+("{:,}".format(round(np.mean(churn_data.EstimatedSalary)))) + " euros.") #Put less decimal points
 
 
 ##### What is the churn rate for the bank customers?
@@ -183,22 +187,20 @@ sns.heatmap(correlation_matrix, mask=mask, cmap=cmap, vmax=.3, center=0, square=
 ### For the age variable 
  
 plt.xlim(16, 80)
-sns.lineplot(x='Age', y='IsActiveMember', data= churn_data_v2, marker='o', color='blue')
+sns.lineplot(x="Age", y="IsActiveMember", data= churn_data_v2, marker="o", color="blue")
 plt.ylabel("Client activity")
 
 plt.xlim(16, 80)
-sns.lineplot(x='Age', y='Exited', data=churn_data_v2, marker='o', color='blue')
+sns.lineplot(x="Age", y="Exited", data=churn_data_v2, marker="o", color="blue")
 plt.ylabel("Churn Rate")
 
 ##Geography
 
 #Balance distribution across countries
-sns.boxplot(y="Balance",x = "Geography", hue = "Geography",data = churn_data_v2).set(xlabel='')
+sns.boxplot(y="Balance",x = "Geography", hue = "Geography",data = churn_data_v2).set(xlabel="")
 plt.gca().legend().remove()
 
 sns.countplot(data=churn_data_v2, x="Exited", hue="Geography")
-
-#Att question An: what are we trying to show with these boxplots? Is there a more illustrative way of showing smth?
 
 
 
@@ -225,23 +227,23 @@ germany_data= churn_data_v2[churn_data_v2["Geography"] == "Germany"]["Exited"]
 
 #For gender
 t_statistic, p_value = ttest_ind(female_data, male_data)
-print(f'T-statistic: {t_statistic}')
-print(f'P-value: {p_value}')
+print(f"T-statistic: {t_statistic}")
+print(f"P-value: {p_value}")
 
 #For geography 
 t_statistic, p_value = ttest_ind(france_data, spain_data)
-print(f'T-statistic: {t_statistic}')
-print(f'P-value: {p_value}')
+print(f"T-statistic: {t_statistic}")
+print(f"P-value: {p_value}")
 #Not significant
 
 t_statistic, p_value = ttest_ind(france_data, germany_data)
-print(f'T-statistic: {t_statistic}')
-print(f'P-value: {p_value}')
+print(f"T-statistic: {t_statistic}")
+print(f"P-value: {p_value}")
 #p<0.001
 
 t_statistic, p_value = ttest_ind(spain_data, germany_data)
-print(f'T-statistic: {t_statistic}')
-print(f'P-value: {p_value}')
+print(f"T-statistic: {t_statistic}")
+print(f"P-value: {p_value}")
 #p<0.001
 
 #We run a probit regression to look at:
@@ -273,61 +275,32 @@ from sklearn.model_selection import GridSearchCV
 #With the country variable, using one-hot encoding 
 #Creating a new dataset to not conflict with the previous one
 
-df = pd.read_csv("churn_bank.txt", sep = ",")
-df["Gender"] = df["Gender"].replace({"Female": 1, "Male": 0})
-df = df.drop(["CustomerId", "Surname"], axis = 1)
+churn_data_ml = pd.read_csv("churn_bank.txt", sep = ",")
+churn_data_ml["Gender"] = churn_data_ml["Gender"].replace({"Female": 1, "Male": 0})
+churn_data_ml = churn_data_ml.drop(["CustomerId", "Surname"], axis = 1)
 
 #Adding dummies for the presence or not of one country in the row 
+churn_data_ml = pd.get_dummies(churn_data_ml, columns=["Geography"], prefix='geo', drop_first=False)
 
-df = pd.get_dummies(df, columns=["Geography"], prefix='geo', drop_first=False)
-
-Y = df["Exited"]
-X = df.drop("Exited", axis = 1)
+Y = churn_data_ml["Exited"]
+X = churn_data_ml.drop("Exited", axis = 1)
 
 #splitting the sample
-
 X_train, X_test, Y_train, Y_test = train_test_split(X,Y, test_size = 0.3, random_state = 42, stratify = Y)
 
-#Grid search to find best parameters for RF 
+#Grid search to find best parameters for RF: n_estimators (the number of trees) and min_samples_split (The minimum number of samples required to split an internal node) 
 
-model = RandomForestClassifier(random_state=42)
+churn_predict_model = RandomForestClassifier(random_state=42)
 param_grid = {
-    'n_estimators': list(range(100, 120)),
-    'min_samples_split': list(range(15, 50))}
+    "n_estimators": list(range(95, 100)),
+    "min_samples_split": list(range(10, 20))}
 
-grid_search = GridSearchCV(model, param_grid=param_grid, cv=5, n_jobs=12)
+grid_search = GridSearchCV(churn_predict_model, param_grid=param_grid, cv=3, n_jobs=12)
 grid_search.fit(X_train, Y_train)    
 best_model = grid_search.best_estimator_
 Y_predicted = best_model.predict(X_test)
 accuracy_best = accuracy_score(Y_test, Y_predicted)
 
-print("Best Parameters:", grid_search.best_params_)
-print(f'Accuracy (Best Model): {accuracy_best:.4f}')
+print("The best parameters:", grid_search.best_params_)
+print(f"Accuracy (Best Model): {accuracy_best:.4f}")
 
-
-
-
-
-
-
-#Ideas for the rest: 
-# Q° : Look at interactions between groups: What are the age, salary, balance, number of products, etc. distributions for each gender group?
-    #/!\ classify the variables into 2: people that make up groups (gender, age, etc) and indicators (salary, number of products, etc)
-    #Use tapply to compare mean zB in different groups --> statistical tests to chec for significativity
-# How are the different indicators distributed by country?
-    #Seems rather straightforward...
-# How do the different variables affect churn? What are the causes that can lead to increased (or reduced) customer churn?
-    #Do a linear model to look at how churn is affected by each?
-    #We won't be able to know which variables increase or reduce customer churn, but we can see which variables are correlated with increased or decreased churn
-#Build a simple machine learning classification model that predicts churn based on customer's features
-    #Def doable,cf Mach learning
-    # Hardest q° will be which model to use... (RF classification imo, but need to consider question and justify choice)
-
-#Suggestion for ml algorithm, maybe use the end of the last exercise done in class if we don't want to bother, I think it did pretty good on accuracy.
-
-#Open questions:
-    #What important points made in class need to be included?
-    #Quantitative variables: histograms and boxplots
-    #Qualitative variables: bar graphs and pie charts
-    #Statistical tests? At least if we do a linear model...
-    #ANOVA model to look at the variation of the variance?and interactions?
