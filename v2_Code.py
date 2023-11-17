@@ -42,8 +42,6 @@ col_names = churn_data.columns.values.tolist()
 print("There are ",len(churn_data), " customers in the data set and there are ", len(col_names), "features.")
 #churn_data.columns() This is an index object, not a list, so can't just print it
 
-
-
 #Surname
 #np.unique(churn_data.Surname)
 #len(np.unique(churn_data.Surname)) #2932 surprisingly low!
@@ -57,19 +55,20 @@ for i in np.unique(churn_data.Surname):
 print("There are between ", min(freq_surname), " and ", max(freq_surname), " customers of each last name. This does not really allow us to deduce the existence of something like families from the surnames.")
 
 
-
 #Credit score
 #Je préfère le seaborn je pense
 #plt.hist(churn_data.CreditScore)
 print("The average credit score is ", np.mean(churn_data.CreditScore))
 #np.median(churn_data.CreditScore)
-sns.kdeplot(churn_data.CreditScore)
-#The distribution is normal
+plt.figure(figsize=(5.5, 3.5))
+sns.kdeplot(churn_data['CreditScore'], fill=True, color='skyblue', linewidth=2)
 
+#Setting our favorite colours: 
+colors = ['#FFD699', '#87CEEB']
 
+#To separate the components of our pie charts 
 
-
-
+explode = (0.1, 0)  
 #Geography
 
 countries = np.unique(churn_data.Geography)
@@ -83,14 +82,17 @@ for i in range(len(countries)):
 #Gender
 gender = np.unique(churn_data.Gender)
 freq_gender = [sum(churn_data.Gender == i ) for i in gender]
-plt.pie(freq_gender, labels = gender, autopct='%1.1f%%')
+plt.pie(freq_gender, labels=gender, autopct='%1.1f%%', startangle =90, colors=colors, explode = explode, shadow=True)
+
 
 print(round(freq_gender[0]/100,1), "% of the customers are female. The rest are male.")
 
 
 #Age
 #plt.hist(churn_data.Age)
-sns.kdeplot(churn_data.Age).set(title = "Distribution of customers' age")
+plt.figure(figsize=(5.5, 3.5))
+sns.kdeplot(churn_data['Age'], fill=True, color='skyblue', linewidth=2)
+
 #np.mean(churn_data.Age)
 #np.median(churn_data.Age)
 print("The average age of a customer in the data set is ",round(np.mean(churn_data.Age)), " years old")
@@ -105,7 +107,7 @@ print("The average customer has been at this bank for ", np.mean(churn_data.Tenu
 
 #Balance
 #plt.hist(churn_data.Balance) #A: Large number with very low
-sns.kdeplot(churn_data.Balance).set(title = "Distribution of bank balance of customers")
+sns.kdeplot(df['Balance'], fill=True, color='skyblue', linewidth=2)
 #Seems to have a normal distribution, with the exception of the low balance?
 print("The median bank balance is", np.median(churn_data.Balance))
 #Median because of the bimodal distribution
@@ -120,15 +122,14 @@ print(round(freq_NumOfProducts[0]/100), "% of customers have one bank product. "
 #HasCrCard
 label_HasCrCard = ['Has a credit card', 'Does not have a credit card']
 freq_HasCrCard= [sum(churn_data.HasCrCard), 10000-sum(churn_data.HasCrCard) ] #A: OPTIMIZE!!!!!
-plt.pie(freq_HasCrCard, labels = label_HasCrCard, autopct='%1.1f%%')
+plt.pie(freq_HasCrCard, labels = label_HasCrCard, autopct='%1.1f%%', startangle = 90,  colors=colors, explode = explode, shadow=True)
 print(round(freq_HasCrCard[0]/100), "% of customers have a credit card. ",round(freq_HasCrCard[1]/100), "% of customers do not have a credit card.")
-
 
 
 #IsActiveMember
 label_IsActiveMember = ['Active member', 'Inactive member']
 freq_IsActiveMember= [sum(churn_data.IsActiveMember), 10000-sum(churn_data.IsActiveMember) ] #A: OPTIMIZE!!!!!
-plt.pie(freq_IsActiveMember, labels = label_IsActiveMember, autopct='%1.1f%%')
+plt.pie(freq_IsActiveMember, labels = label_IsActiveMember, autopct='%1.1f%%', startangle = 90,  colors=colors, explode = explode, shadow=True)
 plt.title("Proportion of bank customers that are active")
 print(round(freq_IsActiveMember[0]/100), "% of customers are active. ",round(freq_IsActiveMember[1]/100), "% of customers are not active.")
 
