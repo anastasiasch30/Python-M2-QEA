@@ -61,7 +61,7 @@ plt.show()
 #Geography
 countries = np.unique(churn_data.Geography)
 freq_country = [sum(churn_data.Geography == i) for i in countries]
-sns.barplot(countries,freq_country, color=colors[1])
+sns.barplot(x= countries, y= freq_country, color=colors[1])
 plt.show()
 for i in range(len(countries)):
     print("There are ",freq_country[i], "customers in "+countries[i])
@@ -86,7 +86,7 @@ print("The average age of a customer in the data set is ",round(np.mean(churn_da
 
 #Tenure
 freq_tenure = [sum(churn_data.Tenure == i ) for i in range(11)]
-sns.barplot(np.unique(churn_data.Tenure),freq_tenure, color=colors[1]).set(title = "Distribution of customers by number of years of tenure")
+sns.barplot(x = np.unique(churn_data.Tenure),y = freq_tenure, color=colors[1]).set(title = "Distribution of customers by number of years of tenure")
 plt.show()
 print("The average customer has been at this bank for ", np.mean(churn_data.Tenure) )
 
@@ -233,7 +233,7 @@ from statsmodels.tools.tools import add_constant
 churn_data_v2["Geography"] = churn_data_v2["Geography"].replace({"France": 1, "Spain": 2, "Germany":3})
 
 Y = churn_data_v2["Exited"]
-X = churn_data_v2.drop(["Exited"], 1)
+X = churn_data_v2.drop(labels= ["Exited"], axis=1)
 X = add_constant(X) 
 model = Probit(Y, X.astype(float))
 probit_model = model.fit()
